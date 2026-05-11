@@ -115,9 +115,7 @@ call cinema.boost_movies(7.5);
 
 -- 7. Постраничный вывод фильмов
 create or replace procedure cinema.movies_pagination(
-	p_page int,
-	p_size int,
-	INOUT cur REFCURSOR
+	INOUT cur refcursor
 )
 language plpgsql
 as $$
@@ -125,19 +123,18 @@ begin
 	open cur for
 	select id, release_year, rating
 	from cinema.movie
-	order by id
-	limit p_size
-	offset (p_page - 1) * p_size;
+	order by id;
 end;
 $$;
 
 -- call
 begin;
-call cinema.movies_pagination(2, 5, 'c'::refcursor);
-fetch all from c;
+call cinema.movies_pagination('c'::refcursor);
+fetch 5 from c;
+fetch 3 from c;
 commit;
 
-DROP PROCEDURE cinema.movies_pagination(int, int);
+DROP PROCEDURE cinema.movies_pagination('c'::refcursor);
 rollback;
 
 -- 8. Поиск с сортировкой
@@ -178,8 +175,8 @@ $$;
 
 -- Вызов процедуры
 BEGIN;
-CALL cinema.search_movies('криминал', 'rating', 'DESC', 'movie_cursor');
-FETCH ALL FROM movie_cursor;
+CALL cinema.search_movies('аватар', 'rating', 'DESC', 'movie_cursor');
+FETCH 5 from movie_cursor;
 COMMIT;
 
 -- Удалить старую версию процедуры
